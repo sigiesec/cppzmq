@@ -57,7 +57,14 @@ cppzmq_build() {
 cppzmq_tests() {
     pushd .
     cd ${CPPZMQ}
+    if [ "$COVERAGE" == "ON" ] ; then
+        lcov -c -i -b .. -d . -o Coverage.baseline
+    fi
     ctest -V -j${JOBS}
+    if [ "$COVERAGE" == "ON" ] ; then
+        lcov -c -d . -b .. -o Coverage.out
+        lcov -a Coverage.baseline -a Coverage.out -o Coverage.combined
+    fi
     popd
 }
 
