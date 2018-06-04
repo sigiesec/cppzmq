@@ -34,7 +34,7 @@ target_link_libraries(
 OPTION (COVERAGE "Enable gcda file generation needed by lcov" OFF)
 
 if (COVERAGE)
-    target_compile_options(unit_tests PRIVATE --coverage)
+    target_compile_options(unit_tests PRIVATE --coverage -fno-inline -fno-inline-small-functions -fno-default-inline)
     target_link_libraries(unit_tests PRIVATE --coverage)
 endif()
 
