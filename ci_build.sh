@@ -38,8 +38,18 @@ libzmq_install() {
 cppzmq_build() {
     pushd .
     CMAKE_PREFIX_PATH=${LIBZMQ} \
+    if [ "$COVERAGE" = "ON" ] ; then
+	# to get a valid coverage measurement, we need to build with
+	# optimizations disabled, in particular with inlinable functions
+	# (which all of our functions are), see also 
+	# https://gcc.gnu.org/onlinedocs/gcc/Gcov-and-Optimization.html
+	CMAKE_BUILD_TYPE=Debug
+    else
+        CMAKE_BUILD_TYPE=RelWithDebInfo
+    fi
     cmake -H. -B${CPPZMQ} -DENABLE_DRAFTS=${ENABLE_DRAFTS} \
-                          -DCOVERAGE=${COVERAGE}
+                          -DCOVERAGE=${COVERAGE} \
+			  -DCMAKE_BUILDTYPE=${CMAKE_BUILD_TYPE}
     cmake --build ${CPPZMQ} -- -j${JOBS}
     popd
 }
