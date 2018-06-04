@@ -7,6 +7,7 @@ BUILD_TYPE=${BUILD_TYPE:-cmake}
 ZMQ_VERSION=${ZMQ_VERSION:-4.2.5}
 ENABLE_DRAFTS=${ENABLE_DRAFTS:-OFF}
 COVERAGE=${COVERAGE:-OFF}
+SRC_DIR=${PWD}
 LIBZMQ=${PWD}/libzmq-build
 CPPZMQ=${PWD}/cppzmq-build
 # Travis machines have 2 cores
@@ -58,12 +59,14 @@ cppzmq_tests() {
     pushd .
     cd ${CPPZMQ}
     if [ "$COVERAGE" == "ON" ] ; then
-        lcov -c -i -b .. -d . -o Coverage.baseline
+        lcov --capture --directory . --base-directory ${SRC_DIR} --output-file Coverage.baseline --initial
     fi
     ctest -V -j${JOBS}
     if [ "$COVERAGE" == "ON" ] ; then
-        lcov -c -d . -b .. -o Coverage.out
-        lcov -a Coverage.baseline -a Coverage.out -o Coverage.combined
+        lcov --capture --directory . --base-directory ${SRC_DIR} --output-file Coverage.out
+        lcov --add-tracefile Coverage.baseline --add-tracefile Coverage.out --output-file Coverage.combined
+        lcov --remove Coverage.combined "cppzmq-build" "tests" --output-file Coverage.combined
+        lcov --list Coverage.combined # DIAGNOSTIC OUTPUT
     fi
     popd
 }
